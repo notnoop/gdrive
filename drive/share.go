@@ -2,9 +2,10 @@ package drive
 
 import (
 	"fmt"
-	"google.golang.org/api/drive/v3"
 	"io"
 	"text/tabwriter"
+
+	"google.golang.org/api/drive/v3"
 )
 
 type ShareArgs struct {
@@ -26,7 +27,7 @@ func (self *Drive) Share(args ShareArgs) error {
 		Domain:             args.Domain,
 	}
 
-	_, err := self.service.Permissions.Create(args.FileId, permission).Do()
+	_, err := self.service.Permissions.Create(args.FileId, permission).SupportsAllDrives(true).Do()
 	if err != nil {
 		return fmt.Errorf("Failed to share file: %s", err)
 	}
@@ -42,7 +43,7 @@ type RevokePermissionArgs struct {
 }
 
 func (self *Drive) RevokePermission(args RevokePermissionArgs) error {
-	err := self.service.Permissions.Delete(args.FileId, args.PermissionId).Do()
+	err := self.service.Permissions.Delete(args.FileId, args.PermissionId).SupportsAllDrives(true).Do()
 	if err != nil {
 		fmt.Errorf("Failed to revoke permission: %s", err)
 		return err
@@ -58,7 +59,7 @@ type ListPermissionsArgs struct {
 }
 
 func (self *Drive) ListPermissions(args ListPermissionsArgs) error {
-	permList, err := self.service.Permissions.List(args.FileId).Fields("permissions(id,role,type,domain,emailAddress,allowFileDiscovery)").Do()
+	permList, err := self.service.Permissions.List(args.FileId).Fields("permissions(id,role,type,domain,emailAddress,allowFileDiscovery)").SupportsAllDrives(true).Do()
 	if err != nil {
 		fmt.Errorf("Failed to list permissions: %s", err)
 		return err
@@ -77,7 +78,7 @@ func (self *Drive) shareAnyoneReader(fileId string) error {
 		Type: "anyone",
 	}
 
-	_, err := self.service.Permissions.Create(fileId, permission).Do()
+	_, err := self.service.Permissions.Create(fileId, permission).SupportsAllDrives(true).Do()
 	if err != nil {
 		return fmt.Errorf("Failed to share file: %s", err)
 	}
